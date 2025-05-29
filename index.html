@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ฟอร์มข้อมูลผู้แจ้งซ่อม - อบต.ข่าใหญ่</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #ff4757;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-control:hover {
+            border-color: #cbd5e0;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>📋 ฟอร์มข้อมูลผู้แจ้งซ่อม</h1>
+                <p>องค์การบริหารส่วนตำบลข่าใหญ่</p>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div id="alertContainer"></div>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                กำลังบันทึกข้อมูล...
+            </div>
+
+            <form id="userInfoForm">
+                <div class="form-group">
+                    <label for="titlePrefix">คำนำหน้า <span class="required">*</span></label>
+                    <select id="titlePrefix" name="titlePrefix" class="form-control" required>
+                        <option value="">-- เลือกคำนำหน้า --</option>
+                        <option value="นาย">นาย</option>
+                        <option value="นาง">นาง</option>
+                        <option value="นางสาว">นางสาว</option>
+                        <option value="เด็กชาย">เด็กชาย</option>
+                        <option value="เด็กหญิง">เด็กหญิง</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">ชื่อ <span class="required">*</span></label>
+                        <input type="text" id="firstName" name="firstName" class="form-control" 
+                               placeholder="ชื่อจริง" required maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">นามสกุล <span class="required">*</span></label>
+                        <input type="text" id="lastName" name="lastName" class="form-control" 
+                               placeholder="นามสกุล" required maxlength="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">เบอร์โทรศัพท์ <span class="required">*</span></label>
+                    <input type="tel" id="phone" name="phone" class="form-control" 
+                           placeholder="0XX-XXX-XXXX" required pattern="[0-9]{9,10}" maxlength="10">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="houseNo">บ้านเลขที่ <span class="required">*</span></label>
+                        <input type="text" id="houseNo" name="houseNo" class="form-control" 
+                               placeholder="เลขที่บ้าน" required maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="moo">หมู่บ้าน <span class="required">*</span></label>
+                        <select id="moo" name="moo" class="form-control" required>
+                            <option value="">-- เลือกหมู่บ้าน --</option>
+                            <option value="หมู่ 2 บ้านดอนเข็มเหนือ">หมู่ 2 บ้านดอนเข็มเหนือ</option>
+                            <option value="หมู่ 3 บ้านข่าใหญ่">หมู่ 3 บ้านข่าใหญ่</option>
+                            <option value="หมู่ 6 บ้านดินทรายอ่อนใต้">หมู่ 6 บ้านดินทรายอ่อนใต้</option>
+                            <option value="หมู่ 7 บ้านนาล้อม">หมู่ 7 บ้านนาล้อม</option>
+                            <option value="หมู่ 8 บ้านหนองแสงใต้">หมู่ 8 บ้านหนองแสงใต้</option>
+                            <option value="หมู่ 10 บ้านดอนหัน">หมู่ 10 บ้านดอนหัน</option>
+                            <option value="หมู่ 11 บ้านข่าน้อย">หมู่ 11 บ้านข่าน้อย</option>
+                            <option value="หมู่ 12 บ้านดินทรายอ่อนเหนือ">หมู่ 12 บ้านดินทรายอ่อนเหนือ</option>
+                            <option value="หมู่ 14 บ้านหนองแสงเหนือ">หมู่ 14 บ้านหนองแสงเหนือ</option>
+                            <option value="หมู่ 15 บ้านดอนเข็มใต้">หมู่ 15 บ้านดอนเข็มใต้</option>
+                            <option value="หมู่ 16 บ้านทรายทอง">หมู่ 16 บ้านทรายทอง</option>
+                            <option value="อื่นๆ/ไม่ทราบ">อื่นๆ/ไม่ทราบ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    💾 บันทึกข้อมูล
+                </button>
+            </form>
+        </div>
+
+        <div class="footer">
+            <p>🏛️ องค์การบริหารส่วนตำบลข่าใหญ่</p>
+            <p>📞 042-315962 | 📧 contact@khaiyai.go.th</p>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลการกำหนดค่า
+        const CONFIG = {
+            // URL ของ Google Apps Script Web App (แทนที่ด้วย URL จริง)
+            GAS_URL: 'https://script.google.com/macros/s/AKfycbyhvbAaWzoG3Ldh3q2nT-i4DMSokCSN91ju5H23ksucuhYAEdtQHnuXXK9pQwWena2V/exec',
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 1000
+        };
+
+        // ตัวแปรสำหรับเก็บข้อมูล
+        let lineUserId = null;
+        let submitAttempts = 0;
+
+        // เมื่อหน้าเว็บโหลดเสร็จ
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            setupEventListeners();
+        });
+
+        // ตั้งค่าเริ่มต้นของฟอร์ม
+        function initializeForm() {
+            // ดึง LINE User ID จาก URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            lineUserId = urlParams.get('userId');
+            
+            // ตรวจสอบว่ามี LINE User ID หรือไม่
+            if (!lineUserId) {
+                showAlert('ข้อผิดพลาด: ไม่พบรหัสผู้ใช้ LINE กรุณาติดต่อเจ้าหน้าที่', 'error');
+                disableForm();
+                return;
+            }
+
+            console.log('LINE User ID:', lineUserId);
+            
+            // โฟกัสที่ช่องแรก
+            document.getElementById('titlePrefix').focus();
+        }
+
+        // ตั้งค่า Event Listeners
+        function setupEventListeners() {
+            const form = document.getElementById('userInfoForm');
+            const phoneInput = document.getElementById('phone');
+            
+            // จัดการการส่งฟอร์ม
+            form.addEventListener('submit', handleFormSubmit);
+            
+            // จัดรูปแบบเบอร์โทรศัพท์
+            phoneInput.addEventListener('input', formatPhoneNumber);
+            phoneInput.addEventListener('keypress', validatePhoneInput);
+            
+            // เพิ่ม validation แบบ real-time
+            setupRealTimeValidation();
+        }
+
+        // จัดการการส่งฟอร์ม
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+
+            await submitForm();
+        }
+
+        // ตรวจสอบความถูกต้องของฟอร์ม
+        function validateForm() {
+            const requiredFields = [
+                { id: 'titlePrefix', name: 'คำนำหน้า' },
+                { id: 'firstName', name: 'ชื่อ' },
+                { id: 'lastName', name: 'นามสกุล' },
+                { id: 'phone', name: 'เบอร์โทรศัพท์' },
+                { id: 'houseNo', name: 'บ้านเลขที่' },
+                { id: 'moo', name: 'หมู่บ้าน' }
+            ];
+
+            // ตรวจสอบช่องที่จำเป็น
+            for (const field of requiredFields) {
+                const element = document.getElementById(field.id);
+                const value = element.value.trim();
+                
+                if (!value) {
+                    showAlert(`กรุณากรอก${field.name}`, 'error');
+                    element.focus();
+                    return false;
+                }
+            }
+
+            // ตรวจสอบรูปแบบเบอร์โทรศัพท์
+            const phone = document.getElementById('phone').value.trim();
+            if (!/^[0-9]{9,10}$/.test(phone)) {
+                showAlert('รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง (ต้องเป็นตัวเลข 9-10 หลัก)', 'error');
+                document.getElementById('phone').focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // ส่งข้อมูลฟอร์ม
+        async function submitForm() {
+            if (submitAttempts >= CONFIG.MAX_RETRIES) {
+                showAlert('พยายามส่งข้อมูลหลายครั้งแล้ว กรุณาติดต่อเจ้าหน้าที่', 'error');
+                return;
+            }
+
+            showLoading(true);
+            submitAttempts++;
+
+            try {
+                const formData = new FormData(document.getElementById('userInfoForm'));
+                
+                // เพิ่มข้อมูลเพิ่มเติม
+                formData.append('formSource', 'vercelUserInfoForm');
+                formData.append('lineUserId', lineUserId);
+
+                // แปลงเป็น URLSearchParams
+                const params = new URLSearchParams(formData);
+
+                const response = await fetch(CONFIG.GAS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString()
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showAlert(result.message || 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+                    disableForm();
+                    
+                    // แสดงข้อความแนะนำ
+                    setTimeout(() => {
+                        showAlert('กรุณากลับไปที่ LINE เพื่อดำเนินการแจ้งซ่อมต่อ', 'success');
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(result.message || 'เกิดข้อผิดพลาดไม่ทราบสาเหตุ');
+                }
+
+            } catch (error) {
+                console.error('Submit error:', error);
+                
+                if (submitAttempts < CONFIG.MAX_RETRIES) {
+                    showAlert(`เกิดข้อผิดพลาด: ${error.message} (พยายามอีกครั้งใน ${CONFIG.RETRY_DELAY/1000} วินาที)`, 'error');
+                    setTimeout(() => submitForm(), CONFIG.RETRY_DELAY);
+                } else {
+                    showAlert(`ไม่สามารถส่งข้อมูลได้: ${error.message}`, 'error');
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // จัดรูปแบบเบอร์โทรศัพท์
+        function formatPhoneNumber(event) {
+            let value = event.target.value.replace(/\D/g, '');
+            
+            // จำกัดความยาวไม่เกิน 10 หลัก
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            
+            event.target.value = value;
+        }
+
+        // ตรวจสอบการป้อนเบอร์โทรศัพท์
+        function validatePhoneInput(event) {
+            const char = String.fromCharCode(event.which);
+            if (!/[0-9]/.test(char)) {
+                event.preventDefault();
+            }
+        }
+
+        // ตั้งค่า Real-time Validation
+        function setupRealTimeValidation() {
+            const inputs = document.querySelectorAll('.form-control');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
+                        validateField(this);
+                    }
+                });
+            });
+        }
+
+        // ตรวจสอบช่องแต่ละช่อง
+        function validateField(field) {
+            const value = field.value.trim();
+            const isRequired = field.hasAttribute('required');
+            
+            if (isRequired && !value) {
+                field.classList.add('is-invalid');
+                field.style.borderColor = '#dc3545';
+                return false;
+            } else {
+                field.classList.remove('is-invalid');
+                field.style.borderColor = '#28a745';
+                return true;
+            }
+        }
+
+        // แสดงข้อความแจ้งเตือน
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            
+            // ลบ alert เก่า
+            const existingAlert = alertContainer.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</strong>
+                ${message}
+            `;
+            
+            alertContainer.appendChild(alertDiv);
+            
+            // เลื่อนไปที่ข้อความ
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // ซ่อนข้อความหลัง 5 วินาที (ยกเว้น error)
+            if (type !== 'error') {
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // แสดง/ซ่อน Loading
+        function showLoading(show) {
+            const loading = document.getElementById('loadingIndicator');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (show) {
+                loading.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'กำลังบันทึก...';
+            } else {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 บันทึกข้อมูล';
+            }
+        }
+
+        // ปิดการใช้งานฟอร์ม
+        function disableForm() {
+            const form = document.getElementById('userInfoForm');
+            const inputs = form.querySelectorAll('input, select, button');
+            
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = '✅ บันทึกเรียบร้อย';
+            submitBtn.style.background = '#28a745';
+        }
+
+        // ฟังก์ชันสำหรับ Debug
+        function debugInfo() {
+            console.log('Current Configuration:', {
+                gasUrl: CONFIG.GAS_URL,
+                lineUserId: lineUserId,
+                submitAttempts: submitAttempts
+            });
+        }
+
+        // ทำให้ใช้งานได้จาก Console
+        window.debugInfo = debugInfo;
+    </script>
+</body>
+</html>
